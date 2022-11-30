@@ -326,7 +326,7 @@ if status:
             'n_replies_to_user': 0.1,
             'sentiment_twitter': 0.3,
             'relative_engagement': 0.1
-        }
+            }
 
             bonus_spi = 0
             for k in dict_relative_change.keys():
@@ -337,7 +337,6 @@ if status:
             new_record_upd.loc[0, "spi"] = new_record_upd.loc[0, "spi"] + bonus_weight*bonus_spi*100
 
             return new_record_upd[:1]
-
 
     # --- Compute general SPI and input the data into the database ---
 

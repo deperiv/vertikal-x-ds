@@ -4,7 +4,7 @@ Requerimientos
 curl https://sh.rustup.rs -sSf | sh export PATH=$PATH:~/.cargo/bin
 
 2. Instalar torch (pip install torch no sirve versiones superiores a Python 3.7.9 )
-pip install torch (Se instaló con python 3.10.5, (funcionó))
+pip install torch (Se instaló con python 3.10.5 (funcionó))
 
 
 
