@@ -8,7 +8,7 @@ COPY requirements.txt /sentiment_analysis
 
 WORKDIR /sentiment_analysis
 
-RUN curl https://sh.rustup.rs -sSf | sh export PATH=$PATH:~/.cargo/bin
+# RUN curl https://sh.rustup.rs -sSf | sh export PATH=$PATH:~/.cargo/bin
 
 RUN pip3 install -r requirements.txt
 
