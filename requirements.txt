@@ -1,0 +1,11 @@
+numpy
+pandas
+instagrapi
+Pillow
+scikit-learn
+transformers
+pysentimiento
+torch
+tweepy
+mariadb
+

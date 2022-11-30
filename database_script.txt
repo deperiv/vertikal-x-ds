@@ -1,0 +1,46 @@
+create table users(
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100),
+    instagram_username VARCHAR(100),
+    twitter_username VARCHAR(100),
+    last_update DATETIME,
+    PRIMARY KEY(id));
+
+create table instagram_stats(
+    record_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT,
+    instagram_username VARCHAR(100),
+    n_followers INT,
+    n_posts_total INT,
+    n_likes_retrieved INT,
+    n_comments_retrieved INT,
+    sentiment FLOAT,
+    engagement FLOAT,
+    spi FLOAT,
+    created_at DATETIME,
+    PRIMARY KEY(record_id));
+
+create table twitter_stats(
+    record_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT,
+    twitter_username VARCHAR(100),
+    n_followers INT,
+    n_retweets INT,
+    n_tweets INT,
+    n_retweets_to_user INT,
+    n_favorites_to_user INT,
+    n_replies_to_user INT,
+    sentiment FLOAT,
+    engagement FLOAT,
+    spi FLOAT,
+    created_at DATETIME,
+    PRIMARY KEY(record_id));
+
+create table spis(
+    record_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT,
+    spi FLOAT,
+    spi_instagram FLOAT,
+    spi_twitter FLOAT,
+    created_at DATETIME,
+    PRIMARY KEY(record_id));

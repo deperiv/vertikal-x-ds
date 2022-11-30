@@ -1,0 +1,65 @@
+Requerimientos
+
+1. Instalar compilador de Rust (Para instalar transformers)
+curl https://sh.rustup.rs -sSf | sh export PATH=$PATH:~/.cargo/bin
+
+2. Instalar torch (pip install torch no sirve versiones superiores a Python 3.7.9 )
+pip install torch (Se instaló con python 3.10.5, (funcionó))
+
+
+
+WORKFLOW DE LA API:
+
+Para cada usuario: 
+
+1. Se revisa si el usuario ya tiene información en las tablas de instagram y twitter
+
+2.a. Si el usuario se ingresa por primera vez, se corre la api de instagram ***YA NO***
+todos los posts, y se traen el número de likes y el número de comentarios de todos los 
+posts para poder hacer el cálculo del engagement, junto con la data general del perfil. 
+
+2.b. Si el usuario ya tiene historial, se toman solo los últimos 5 posts, y se traen 
+el número de likes y el número de comentarios de todos los posts para poder hacer el 
+cálculo del engagement, junto con la data general del perfil
+
+3. Se trae la data de twitter (últimos 7 días).
+
+4. Se preprocesan y se analizan los comentarios para instagram y para twitter, y se obtiene el
+sentimiento promedio del usuario en cada red social.
+
+5. Se construyen los objetos de tipo diccionario para cada red social.
+
+6. Se espera a que se obtengan los datos de los demás usuarios (esto para poder analizar en base al percentil). 
+Y se construye un DataFrame con la información de cada usuario como fila.
+
+7. Se computa el engagement.
+
+8. Se calculan los percentiles en los que se encuentra el usuario según cada variable.
+
+9.a. Si el usuario se ingresa por primera vez, se calcula el SPI sin considerar bono por cambio.
+9.b. Si el usuario ya tiene historial en la base de datos, se calcula el SPI considerando el bono por cambio
+en base al último registro.
+
+10. Se añaden los datos extraídos y los datos calculados a la tabla de cada red social en la base de datos.
+
+Tratar de mandar el tipo de cliente (usuario y password) en el query del request (?)
+
+
+Inicialmente va a ser un cronjob que se ejecute una vez por día:
+Va a consultar una tabla con los usuarios y va a traer sus datos de redes sociales,
+Una vez se tengan los datos de todos los usuarios, se computan los percentiles y se calculan los spis
+
+Si los usuarios ya tenían registros en las tablas de instagram o twitter, se calcula el bono por cambio.
+De lo contrario se utiliza el spi base.
+
+Si el usuario no tiene alguna red social se manda un 0 para todos los campos
+
+LO QUE FALTA:
+
+Desplegar como containers la sentiment API, la API de extracción de datos y el script de despliegue.
+
+
+
+
+
+
