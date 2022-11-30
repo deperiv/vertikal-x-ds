@@ -4,3 +4,4 @@ instagrapi==1.16.30
 Pillow==9.3.0
 tweepy==4.12.1
 fastapi==0.88.0
+uvicorn==0.20.0
