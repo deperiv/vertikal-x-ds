@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  sentimentanalysis:
+    build: sentiment_analysis/
+    ports: 
+      - 6001:6001
+    networks:
+      - deploy_network
+    container_name: sentimentanalysis
+  
+  dataextraction:
+    build: data_extraction/
+    depends_on:
+      - sentimentanalysis
+    ports: 
+      - 6000:6000
+    networks:
+      - deploy_network
+    container_name: dataextraction
+
+networks:
+  deploy_network:
+    driver: bridge
