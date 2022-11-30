@@ -41,8 +41,8 @@ for id, name, instagram_username, twitter_username, last_update in cur:
 
 # --- Extract the data for all the users ---
 
-url_ig = "http://localhost:5000/api/instagram"
-url_tw = "http://localhost:5000/api/twitter"
+url_ig = "http://localhost:6000/api/instagram"
+url_tw = "http://localhost:6000/api/twitter"
 
 users_data = []
 
