@@ -39,7 +39,7 @@ def status():
 # INSTAGRAM
 
 CHALLENGE_EMAIL = "samanthaoakley202212@gmail.com"
-CHALLENGE_PASSWORD = "1OE0t5@Po9*z" 
+CHALLENGE_PASSWORD = "tsgvcspxtnbojamx" 
 
 def get_code_from_email(username):
     mail = imaplib.IMAP4_SSL("imap.gmail.com")
@@ -76,6 +76,7 @@ def get_code_from_email(username):
 
 def challenge_code_handler(username, choice):
     if choice == ChallengeChoice.EMAIL:
+        print("Asking for email code verification")
         return get_code_from_email(username)
     return False
 
