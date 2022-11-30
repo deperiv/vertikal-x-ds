@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import tweepy
 import requests
+import email
+import imaplib
+import re
 import pandas   as pd
 import numpy    as np
 from fastapi      import FastAPI
 from instagrapi   import Client
-from datetime     import datetime as dt
+from instagrapi.mixins.challenge import ChallengeChoice
+from datetime                    import datetime as dt
 
 app = FastAPI(title="Data extraction",
               description="""Extract data from Instagram and Twitter""",
@@ -34,8 +38,55 @@ def status():
 
 # INSTAGRAM
 
+CHALLENGE_EMAIL = "samanthaoakley202212@gmail.com"
+CHALLENGE_PASSWORD = "tsgvcspxtnbojamx" 
+
+def get_code_from_email(username):
+    mail = imaplib.IMAP4_SSL("imap.gmail.com")
+    mail.login(CHALLENGE_EMAIL, CHALLENGE_PASSWORD)
+    mail.select("inbox")
+    result, data = mail.search(None, "(UNSEEN)")
+    assert result == "OK", "Error1 during get_code_from_email: %s" % result
+    ids = data.pop().split()
+    for num in reversed(ids):
+        mail.store(num, "+FLAGS", "\\Seen")  # mark as read
+        result, data = mail.fetch(num, "(RFC822)")
+        assert result == "OK", "Error2 during get_code_from_email: %s" % result
+        msg = email.message_from_string(data[0][1].decode())
+        payloads = msg.get_payload()
+        if not isinstance(payloads, list):
+            payloads = [msg]
+        code = None
+        for payload in payloads:
+            body = payload.get_payload(decode=True).decode()
+            if "<div" not in body:
+                continue
+            match = re.search(">([^>]*?({u})[^<]*?)<".format(u=username), body)
+            if not match:
+                continue
+            print("Match from email:", match.group(1))
+            match = re.search(r">(\d{6})<", body)
+            if not match:
+                print('Skip this email, "code" not found')
+                continue
+            code = match.group(1)
+            if code:
+                return code
+    return False
+
+def challenge_code_handler(username, choice):
+    if choice == ChallengeChoice.EMAIL:
+        print("Asking for email code verification")
+        return get_code_from_email(username)
+    return False
+
+
+IG_USERNAME = "samanthaoakley202212"
+IG_PASSWORD = "1OE0t5@Po9*z"
+
 cl = Client()
-cl.login("samanthaoakley202212", "1OE0t5@Po9*z")
+cl.challenge_code_handler = challenge_code_handler
+cl.login(IG_USERNAME, IG_PASSWORD)
 
 def extract_text(comment):
     comments_text_ls = []
