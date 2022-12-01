@@ -15,7 +15,6 @@ try:
         host="develop-free-vtx.csgmphwpjwca.us-east-1.rds.amazonaws.com",
         port=3306,
         database="catalogs"
-
     )
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")

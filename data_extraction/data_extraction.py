@@ -141,7 +141,7 @@ def get_replies(api, username, tweet_id, max_replies=10, max_attempts=20):
     return replies_ls
 
 def get_sentiment(comments):
-    url = "http://sentimentanalysis:6001/api/get_sentiment"
+    url = "http://localhost:6001/api/get_sentiment"
     body = {"comments": comments}
 
     r = requests.post(url, json=body)
