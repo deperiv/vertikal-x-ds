@@ -16,6 +16,14 @@ try:
         port=3306,
         database="catalogs"
     )
+    # conn = mariadb.connect(
+    #     user="root",
+    #     password="itsense",
+    #     host="localhost",
+    #     port=3306,
+    #     database="vtx"
+
+    # )
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
@@ -31,7 +39,7 @@ names = []
 instagram_usernames = []
 twitter_usernames = []
 
-for id, name, instagram_username, twitter_username, last_update in cur: 
+for id, name, instagram_username, twitter_username, last_update, gender, date__birth, sport, position, email in cur: 
     ids.append(id)
     names.append(name)
     instagram_usernames.append(instagram_username)
@@ -39,6 +47,9 @@ for id, name, instagram_username, twitter_username, last_update in cur:
     print(f"name: {name}, instagram_username: {instagram_username}, twitter_username: {twitter_username}, last_update: {last_update}")
 
 # --- Extract the data for all the users ---
+
+# url_ig = "http://3.227.20.215:6000/api/instagram"
+# url_tw = "http://3.227.20.215:6000/api/twitter"
 
 url_ig = "http://localhost:6000/api/instagram"
 url_tw = "http://localhost:6000/api/twitter"
@@ -54,22 +65,47 @@ try:
         user_data_dict["instagram_username"] = instagram_usernames[ix]
         user_data_dict["twitter_username"] = twitter_usernames[ix]
         print(f"Working on {names[ix]}")
-
-        if user_data_dict["instagram_username"] != None:
-            
+        if user_data_dict["instagram_username"] is not None and user_data_dict["instagram_username"] != "nan" and user_data_dict["instagram_username"] != "":
             print("Getting IG data")
             body = {"username": user_data_dict["instagram_username"]}
             r = requests.post(url_ig, json=body)
             response = r.json()
             user_data_dict["instagram_data"] = response
+        else:
+            user_data_dict["instagram_data"] = {
+                'username': '',
+                "user_id_instagram": '',
+                'n_followers': 0,
+                'n_following': 0,
+                'n_posts_total': 0,
+                'n_posts_retrieved': 0,
+                'n_likes_total': 0,
+                'n_likes_retrieved': 0,
+                'n_comments_total': 0,
+                'n_comments_retrieved': 0,
+                'created_at': '',
+                'sentiment_instagram': 0
+            }
 
-        if user_data_dict["twitter_username"] != None:
+        if user_data_dict["twitter_username"] is not None and user_data_dict["twitter_username"] != "nan" and user_data_dict["twitter_username"] != "":
             print("Getting TW data")
             body = {"username": user_data_dict["twitter_username"]}
             r = requests.post(url_tw, json=body)
             response = r.json()
             user_data_dict["twitter_data"] = response
-        
+        else:
+            user_data_dict["twitter_data"] = {
+                'username': '',
+                "n_followers": 0,
+                'n_retweets': 0,
+                'n_tweets': 0,
+                'n_retweets_to_user': 0,
+                'n_favorites_to_user': 0,
+                'n_replies_to_user': 0,
+                'created_at': dt.now(),
+                'sentiment_twitter': 0
+            }
+
         users_data.append(user_data_dict)
         print(f"Done with {names[ix]}")
         print("----------------------------------")
@@ -91,7 +127,10 @@ if status:
         }
         spi = 0
         for k in spi_ig_weights_dict.keys():
-            spi += spi_ig_weights_dict[k]*x[k]
+            if x[k] == 0:
+                spi += 0
+            else:
+                spi += spi_ig_weights_dict[k]*x[k]
         return spi
 
     def process_ig_data(data):
@@ -118,11 +157,11 @@ if status:
                 users_data_instagram.append(empty_dict)
             
         df_ig = pd.DataFrame(users_data_instagram)
-        df_ig["relative_engagement"] = np.clip((df_ig["n_likes_retrieved"] + df_ig["n_comments_retrieved"])/(df_ig["n_followers"])*100, 0, 100)
+        df_ig["relative_engagement"] = df_ig.apply(lambda x: 0 if x["n_followers"] == 0 else np.clip((x["n_likes_retrieved"] + x["n_comments_retrieved"])/(x["n_followers"])*100, 0, 100), axis=1)
         selected_cols = ["n_followers", "n_posts_total", "n_likes_retrieved", "n_comments_retrieved", "sentiment_instagram", "relative_engagement"]
         df_ig_perc = df_ig.copy()
         for col in selected_cols:
-            df_ig_perc[col] = df_ig_perc[col].apply(lambda x: stats.percentileofscore(df_ig_perc[col], x))
+            df_ig_perc[col] = df_ig_perc[col].apply(lambda x: 0 if x == 0 else stats.percentileofscore(df_ig_perc[col], x))
         df_ig_perc["spi"] = df_ig_perc[selected_cols].apply(compute_spi_ig, axis=1)
         spi_ig_columns = ["user_id", "username", "n_followers", "n_posts_total", "n_likes_retrieved", "n_comments_retrieved", "sentiment_instagram", "relative_engagement"]
         return pd.concat([df_ig[spi_ig_columns], df_ig_perc["spi"], df_ig["created_at"]], axis=1)
@@ -140,7 +179,10 @@ if status:
         }
         spi = 0
         for k in spi_ig_weights_dict.keys():
-            spi += spi_ig_weights_dict[k]*x[k]
+            if x[k] == 0:
+                spi += 0
+            else:
+                spi += spi_ig_weights_dict[k]*x[k]
         return spi
 
     def process_tw_data(data):
@@ -164,11 +206,11 @@ if status:
                 users_data_twitter.append(empty_dict)
         
         df_tw = pd.DataFrame(users_data_twitter)
-        df_tw["relative_engagement"] = (df_tw.apply(lambda x: (x["n_favorites_to_user"] + x["n_retweets_to_user"] + x["n_replies_to_user"])/(x["n_followers"])*100 if x["n_tweets"] > 0 else 0, axis=1))
+        df_tw["relative_engagement"] = (df_tw.apply(lambda x: (x["n_favorites_to_user"] + x["n_retweets_to_user"] + x["n_replies_to_user"])/(x["n_followers"])*100 if x["n_followers"] > 0 else 0, axis=1))
         selected_cols = ["n_followers", "n_retweets", "n_tweets", "n_retweets_to_user", "n_favorites_to_user", "n_replies_to_user", "sentiment_twitter", "relative_engagement"]
         df_tw_perc = df_tw.copy()
         for col in selected_cols:
-            df_tw_perc[col] = df_tw_perc[col].apply(lambda x: stats.percentileofscore(df_tw_perc[col], x))
+            df_tw_perc[col] = df_tw_perc[col].apply(lambda x: 0 if x == 0 else stats.percentileofscore(df_tw_perc[col], x))
         df_tw_perc["spi"] = df_tw_perc[selected_cols].apply(compute_spi_tw, axis=1)
         spi_tw_columns = ["user_id","username","n_followers","n_retweets","n_tweets","n_retweets_to_user","n_favorites_to_user","n_replies_to_user","sentiment_twitter","relative_engagement"]
         return pd.concat([df_tw[spi_tw_columns], df_tw_perc["spi"], df_tw["created_at"]], axis=1)

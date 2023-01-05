@@ -34,8 +34,6 @@ def status():
     }
     return message
 
-
-
 # INSTAGRAM
 
 CHALLENGE_EMAIL = "samanthaoakley202212@gmail.com"
@@ -229,55 +227,74 @@ def get_ig_data(query: dict):
         max_comments = query["max_comments"]
     if "retrieve_all" in list(query.keys()):
         retrieve_all = query["retrieve_all"]
-
+    
     user_id = cl.user_id_from_username(username)
-    if retrieve_all:
-        posts = cl.user_medias(user_id)
-    else: 
-        posts = cl.user_medias(user_id, max_posts)
     user_information = cl.user_info(user_id)
-
     n_followers = user_information.follower_count
     n_following = user_information.following_count
     n_posts = user_information.media_count
 
-    # time.sleep(60)
-    posts_info = {}
-    
-    for i, post in enumerate(posts):
-        if i >= max_posts:
-            posts_info[post.id] = {
-                                "n_comments": post.comment_count, 
-                                "n_likes": post.like_count, 
-                                "caption": post.caption_text, 
-                                "comments_text": []
-                                }    
+    if user_information.is_private:
+        print("User ig account is private")
+        user_data = {
+            "username": username,
+            "user_id_instagram": user_id,
+            "n_followers": n_followers,
+            "n_following": n_following,
+            "n_posts_total": n_posts,
+            "n_posts_retrieved": 0,
+            "n_likes_total": 0,
+            "n_likes_retrieved": 0,
+            "n_comments_total": 0,
+            "n_comments_retrieved": 0,
+            "created_at": dt.now()
+        }
+        sentiment_instagram = get_sentiment([])["sentiment"]
+        user_data["sentiment_instagram"] = sentiment_instagram
+
+    else:
+        if retrieve_all:
+            posts = cl.user_medias(user_id)
         else: 
-            posts_info[post.id] = {
+            posts = cl.user_medias(user_id, max_posts)
+        
+        # time.sleep(60)
+        posts_info = {}
+        
+        for i, post in enumerate(posts):
+            if i >= max_posts:
+                posts_info[post.id] = {
                                     "n_comments": post.comment_count, 
                                     "n_likes": post.like_count, 
                                     "caption": post.caption_text, 
-                                    "comments_text": extract_text(cl.media_comments_chunk(post.id, max_amount=max_comments))
-                                    }                              
-    # time.sleep(60)
-    user_data = {
-        "username": username,
-        "user_id_instagram": user_id,
-        "n_followers": n_followers,
-        "n_following": n_following,
-        "n_posts_total": n_posts,
-        "n_posts_retrieved": len(posts_info),
-        "n_likes_total": sum([posts_info[key]["n_likes"] for key in posts_info.keys()]),
-        "n_likes_retrieved": sum([posts_info[key]["n_likes"] for key in list(posts_info.keys())[:max_posts]]),
-        "n_comments_total": sum([posts_info[key]["n_comments"] for key in posts_info.keys()]),
-        "n_comments_retrieved": sum([len(posts_info[key]["comments_text"]) for key in posts_info.keys()]),
-        "created_at": dt.now(),
-        "posts_info": posts_info
-    }
+                                    "comments_text": []
+                                    }    
+            else: 
+                posts_info[post.id] = {
+                                        "n_comments": post.comment_count, 
+                                        "n_likes": post.like_count, 
+                                        "caption": post.caption_text, 
+                                        "comments_text": extract_text(cl.media_comments_chunk(post.id, max_amount=max_comments))
+                                        }                              
+        # time.sleep(60)
+        user_data = {
+            "username": username,
+            "user_id_instagram": user_id,
+            "n_followers": n_followers,
+            "n_following": n_following,
+            "n_posts_total": n_posts,
+            "n_posts_retrieved": len(posts_info),
+            "n_likes_total": sum([posts_info[key]["n_likes"] for key in posts_info.keys()]),
+            "n_likes_retrieved": sum([posts_info[key]["n_likes"] for key in list(posts_info.keys())[:max_posts]]),
+            "n_comments_total": sum([posts_info[key]["n_comments"] for key in posts_info.keys()]),
+            "n_comments_retrieved": sum([len(posts_info[key]["comments_text"]) for key in posts_info.keys()]),
+            "created_at": dt.now(),
+            "posts_info": posts_info
+        }
 
-    posts_comments_ig = get_comments_ls(user_data, mode="ig")
-    sentiment_instagram = get_sentiment(posts_comments_ig)["sentiment"]
-    user_data.pop('posts_info', None)
-    user_data["sentiment_instagram"] = sentiment_instagram
+        posts_comments_ig = get_comments_ls(user_data, mode="ig")
+        sentiment_instagram = get_sentiment(posts_comments_ig)["sentiment"]
+        user_data.pop('posts_info', None)
+        user_data["sentiment_instagram"] = sentiment_instagram
 
     return user_data

@@ -44,3 +44,47 @@ create table spis(
     spi_twitter FLOAT,
     created_at DATETIME,
     PRIMARY KEY(record_id));
+
+create table educational_stats(
+	record_id INT NOT NULL AUTO_INCREMENT,
+   	user_id VARCHAR(50),
+	gpa FLOAT,
+	education_level INT,
+	math_grades FLOAT,
+	science_grades FLOAT,
+	humanities_grades FLOAT,
+	physical_ed_grades FLOAT,
+	n_certificates INT,
+	validated BOOLEAN,
+	epi FLOAT,
+	created_at DATETIME,
+ 	PRIMARY KEY(record_id)
+);
+
+create table athletic_stats(
+	record_id INT NOT NULL AUTO_INCREMENT,
+        user_id VARCHAR(50),
+        api FLOAT,
+	created_at DATETIME,
+   	PRIMARY KEY(record_id)
+);
+
+create table athletic_competition_records(
+	record_id INT NOT NULL AUTO_INCREMENT,
+	user_id VARCHAR(50),
+	position_in_competition INT,
+	n_competitors INT,
+	competition_date DATE,
+	validated BOOLEAN,
+	details JSON,
+	created_at DATETIME,
+ 	PRIMARY KEY(record_id)
+);
+
+create table vertikal_stats(
+	record_id INT NOT NULL AUTO_INCREMENT,
+	user_id VARCHAR(50),
+	vpi FLOAT,
+	created_at DATETIME,
+ 	PRIMARY KEY(record_id)
+);

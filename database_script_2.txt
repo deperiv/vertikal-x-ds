@@ -1,0 +1,60 @@
+CREATE TABLE EducationalLevels (
+	educational_level_id INT PRIMARY KEY,
+	level_name VARCHAR(50),
+	min_age int,
+	max_age int,
+	created_at TIMESTAMP,
+	updated_at TIMESTAMP,
+	enabled bit
+)
+
+CREATE TABLE GradeScales(
+	grade_scale_id INT PRIMARY KEY AUTO_INCREMENT,
+	grade_scale_name VARCHAR(50),
+	description VARCHAR(50),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	enabled BIT DEFAULT 1
+);
+
+CREATE TABLE GradeScales(
+	grade_scale_id INT PRIMARY KEY AUTO_INCREMENT,
+	grade_scale_name VARCHAR(50),
+	description VARCHAR(50),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	enabled BIT DEFAULT 1
+);
+
+INSERT INTO GradeScales(grade_scale_name, description) VALUES ('Letters', 'Grading scale from D to A+');
+INSERT INTO GradeScales(grade_scale_name, description) VALUES ('0 to 4', 'Grading scale from 0.0 to 4.0');
+INSERT INTO GradeScales(grade_scale_name, description) VALUES ('0 to 100', 'Grading scale from 0 to 100');
+INSERT INTO GradeScales(grade_scale_name, description) VALUES ('0 to 10', 'Grading scale from 0 to 10');
+
+CREATE TABLE LetterGrades(
+	letter_id_id INT PRIMARY KEY AUTO_INCREMENT,
+	letter_name VARCHAR(10),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+	enabled BIT DEFAULT 1
+);
+
+INSERT INTO LetterGrades(letter_name) VALUES ('A+');
+INSERT INTO LetterGrades(letter_name) VALUES ('A');
+INSERT INTO LetterGrades(letter_name) VALUES ('A-');
+INSERT INTO LetterGrades(letter_name) VALUES ('B+');
+INSERT INTO LetterGrades(letter_name) VALUES ('B');
+INSERT INTO LetterGrades(letter_name) VALUES ('B-');
+INSERT INTO LetterGrades(letter_name) VALUES ('C+');
+INSERT INTO LetterGrades(letter_name) VALUES ('C');
+INSERT INTO LetterGrades(letter_name) VALUES ('C-');
+INSERT INTO LetterGrades(letter_name) VALUES ('D+');
+INSERT INTO LetterGrades(letter_name) VALUES ('D');
+INSERT INTO LetterGrades(letter_name) VALUES ('D-');
+INSERT INTO LetterGrades(letter_name) VALUES ('E+');
+INSERT INTO LetterGrades(letter_name) VALUES ('E');
+INSERT INTO LetterGrades(letter_name) VALUES ('E-');
+
+
+ALTER TABLE EducationalStats ADD CONSTRAINT 'fk_gpa_grades_scale'
+	FOREIGN KEY (gpa_grade_scale_id) REFERENCES GradeScales(grade_scale_id);
